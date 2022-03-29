@@ -34,19 +34,20 @@ createMap <- function(raster, nClass, states,grad,ecos,points){
   m1 <- tm_shape(grad) + 
     tm_lines(lty = "dashed", col = "black") + 
      tm_shape(states) + 
-       tm_polygons(col = "white", border.col = "black")+
+       tm_polygons(col = "white", border.col = "black",border.alpha = 0.8 )+
     tm_shape(raster)+
       tm_raster(palette = "-Paired", style = "cat", n = nClass)+
     tm_shape(ecos)+ 
-    tm_borders(col = "black")+
+    tm_borders(col = "black", lwd = 1.5)+
     tm_shape(points)+
-      tm_bubbles(size = 0.5,alpha = 0.1, border.col = "black", border.lwd = 1)+
+      tm_bubbles(size = 0.5,alpha = 0.2, border.col = "black", border.lwd = 2)+
       tm_layout(legend.outside = TRUE) +
     tm_scale_bar(color.dark = "gray60",
                           position = c("left", "bottom"))
 
   return(m1)
 }
+
 
 ### general process 
 # reclassify the can1 and can2 variables 
@@ -55,7 +56,9 @@ createMap <- function(raster, nClass, states,grad,ecos,points){
 
 # read in can1 and can2 
 can1 <- raster::raster(paste0(baseDir,"/projectedOutputs/Can1_Oeco.tif"))
+c1 <- raster::raster(paste0(baseDir,"/projectedOutputs/Can1_Oeco.tif"))
 can2 <- raster::raster(paste0(baseDir,"/projectedOutputs/Can2_Oeco.tif"))
+c2 <- raster::raster(paste0(baseDir,"/projectedOutputs/Can2_Oeco.tif"))
 
 #classify based on new values   
 can1[can1[] < -2.2464, ] <- NA
@@ -67,7 +70,7 @@ can1_re <- raster::reclassify(x = can1, rcl = c1m, byrow = TRUE)
 # raster::writeRaster(x= can1_re,  filename = "F:/usda/rcJohnson/buckwheat/projectedOutputs/Can1_Oreclass.tif")
 
 # tmap_save(tm = m3,
-#           filename = "F:/usda/rcJohnson/buckwheat/projectedOutputs/Can1_OreclassMap.jpeg",
+#           filename = "F:/usda/rcJohnson/buckwheat/projectedOutputs/Can1_OreclassMap_20220210.jpeg",
 #           dpi = 600,  width = 12, height = 15, units = "in")
 
 
@@ -89,18 +92,46 @@ c2 <- raster("F:/usda/rcJohnson/buckwheat/projectedOutputs/Can2_Oreclass.tif")
 can <- can1_re + can2_re
 # 
 # raster::writeRaster(x = can,
-#                     filename = "F:/usda/rcJohnson/buckwheat/projectedOutputs/combined_OSeedZones.tif")
+#                     filename = "F:/usda/rcJohnson/buckwheat/projectedOutputs/combined_OSeedZones.tif"
+
+
 
 seedzones <- createMap(raster = can,
-                       nClass = 12, 
+                       nClass = 4, 
                        states = states,
                        grad = grad,
                        ecos = ecos,
                        points = points)
 
 tmap_save(tm = seedzones,
-          filename = "F:/usda/rcJohnson/buckwheat/projectedOutputs/Combined_OreclassMap_Paired_2.jpeg",
+          filename = paste0("F:/usda/rcJohnson/buckwheat/projectedOutputs/Combined_OreclassMap_Paired_",Sys.Date(),".jpeg"),
           dpi = 600,  width = 12, height = 15, units = "in")
+
+
+### maps for shoot weight, bloom date, umbel width 
+# shoot weight 
+sw <- raster("F:/usda/rcJohnson/buckwheat/projectedOutputs/Shootwt_Oeco_CBR.tif")
+
+# bloom date 
+bd <- raster("F:/usda/rcJohnson/buckwheat/projectedOutputs/Bloomday_Oeco_CBR.tif")
+
+# umbel width 
+uw <- raster("F:/usda/rcJohnson/buckwheat/projectedOutputs/Umbelwidth_Oeco_CBR.tif")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # convert to shapefile 
